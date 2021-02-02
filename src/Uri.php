@@ -34,7 +34,7 @@ class Uri implements UriInterface {
     protected $query = "";
     protected $fragment = "";
 
-    public function __construct($uri) {
+    public function __construct($uri = "") {
         $parsed = parse_url($uri);
         if (is_array($parsed)) {
             foreach (["scheme", "host", "port", "user", "pass", "path", "query", "fragment"] as $field) {
@@ -165,52 +165,28 @@ class Uri implements UriInterface {
         return $this->fragment;
     }
 
-    /**
-     * Return an instance with the specified scheme.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified scheme.
-     *
-     * Implementations MUST support the schemes "http" and "https" case
-     * insensitively, and MAY accommodate other schemes if required.
-     *
-     * An empty scheme is equivalent to removing the scheme.
-     *
-     * @param string $scheme The scheme to use with the new instance.
-     * @return static A new instance with the specified scheme.
-     * @throws \InvalidArgumentException for invalid or unsupported schemes.
-     */
-    public function withScheme($scheme);
+    public function withScheme($scheme) {
+        $scheme = strtolower($scheme);
+        if (!in_array($scheme, $this->validSchemes())) {
+            throw new \InvalidArgumentException("Invalid scheme. Scheme must be one of " . implode(",", $this->validSchemes()));
+        }
+        $clone = clone $this;
+        $clone->scheme = $scheme;
+        return $clone;
+    }
 
-    /**
-     * Return an instance with the specified user information.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified user information.
-     *
-     * Password is optional, but the user information MUST include the
-     * user; an empty string for the user is equivalent to removing user
-     * information.
-     *
-     * @param string $user The user name to use for authority.
-     * @param null|string $password The password associated with $user.
-     * @return static A new instance with the specified user information.
-     */
-    public function withUserInfo($user, $password = null);
+    public function withUserInfo($user, $password = null) {
+        $clone = clone $this;
+        $clone->user = empty($user) ? "" : $user;
+        $clone->pass = empty($password) ? "" : $password;
+        return $clone;
+    }
 
-    /**
-     * Return an instance with the specified host.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified host.
-     *
-     * An empty host value is equivalent to removing the host.
-     *
-     * @param string $host The hostname to use with the new instance.
-     * @return static A new instance with the specified host.
-     * @throws \InvalidArgumentException for invalid hostnames.
-     */
-    public function withHost($host);
+    public function withHost($host) {
+        $clone = clone $this;
+        $clone->host = empty($host) ? "" : $host;
+        return $clone;
+    }
 
     /**
      * Return an instance with the specified port.
@@ -229,7 +205,13 @@ class Uri implements UriInterface {
      * @return static A new instance with the specified port.
      * @throws \InvalidArgumentException for invalid ports.
      */
-    public function withPort($port);
+    public function withPort($port) {
+        //@todo validate port
+
+        $clone = clone $this;
+        $clone->port = $port === null ? "" : $port;
+        return $clone;
+    }
 
     /**
      * Return an instance with the specified path.
@@ -312,4 +294,8 @@ class Uri implements UriInterface {
      * @return string
      */
     public function __toString();
+
+    protected function validSchemes() {
+        return ["", "http","https"];
+    }
 }
