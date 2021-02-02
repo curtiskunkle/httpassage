@@ -6,9 +6,9 @@ namespace QuickRouter;
  */
 class Router extends \AltoRouter{
 
-	public function __construct($routes = [], $basePath = '', $matchTypes = []) {
-		parent::__construct($routes, $basePath, $matchTypes);
-	}
+	// public function __construct($routes = [], $basePath = '', $matchTypes = []) {
+	// 	parent::__construct($routes, $basePath, $matchTypes);
+	// }
 
 	/**
 	 * Array of callables to be applied to a request before a matched route callback

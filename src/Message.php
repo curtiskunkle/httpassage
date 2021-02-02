@@ -46,7 +46,7 @@ class Message implements MessageInterface {
             throw new Exception("Invalid protocol version. Must be in " . implode(',', $this->validProtocolVersions()));
         }
         $clone = clone $this;
-        $this->protocolVersion = $versionl
+        $this->protocolVersion = $version;
         return $clone;
     }
 
