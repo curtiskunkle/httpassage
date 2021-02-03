@@ -69,24 +69,13 @@ class Uri implements UriInterface {
         return $this->host;
     }
 
-    /**
-     * Retrieve the port component of the URI.
-     *
-     * If a port is present, and it is non-standard for the current scheme,
-     * this method MUST return it as an integer. If the port is the standard port
-     * used with the current scheme, this method SHOULD return null.
-     *
-     * If no port is present, and no scheme is present, this method MUST return
-     * a null value.
-     *
-     * If no port is present, but a scheme is present, this method MAY return
-     * the standard port for that scheme, but SHOULD return null.
-     *
-     * @return null|int The URI port.
-     */
     public function getPort() {
-        //@todo ^^
-        return $this->port;
+        if (empty($this->port)) return null;
+        if (empty($this->port) && empty($this->scheme)) return null;
+        $scheme = strtolower($this->getScheme());
+        $port = (int)$port;
+        $isStandard = ($scheme === "http" && $port === 80) || ($scheme === "https" && $port === 443);
+        return $isStandard ? null : $port;
     }
 
     /**
@@ -162,7 +151,7 @@ class Uri implements UriInterface {
      */
     public function getFragment() {
         //@todo percent encoding
-        return $this->fragment;
+        return ltrim($this->fragment, "#");
     }
 
     public function withScheme($scheme) {
@@ -188,26 +177,11 @@ class Uri implements UriInterface {
         return $clone;
     }
 
-    /**
-     * Return an instance with the specified port.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified port.
-     *
-     * Implementations MUST raise an exception for ports outside the
-     * established TCP and UDP port ranges.
-     *
-     * A null value provided for the port is equivalent to removing the port
-     * information.
-     *
-     * @param null|int $port The port to use with the new instance; a null value
-     *     removes the port information.
-     * @return static A new instance with the specified port.
-     * @throws \InvalidArgumentException for invalid ports.
-     */
     public function withPort($port) {
-        //@todo validate port
-
+        if ($port !== null) $port = (int)$port;
+        if ($port !== null && ($port < 0 || $port > 65353)) {
+            throw new \InvalidArgumentException("Invalid port - outside of established port ranges");
+        }
         $clone = clone $this;
         $clone->port = $port === null ? "" : $port;
         return $clone;
@@ -235,40 +209,34 @@ class Uri implements UriInterface {
      * @return static A new instance with the specified path.
      * @throws \InvalidArgumentException for invalid paths.
      */
-    public function withPath($path);
+    public function withPath($path) {
+        //@todo
+        if (!is_string($path)) {
+            throw new \InvalidArgumentException("Invalid path - must be string");
+        }
 
-    /**
-     * Return an instance with the specified query string.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified query string.
-     *
-     * Users can provide both encoded and decoded query characters.
-     * Implementations ensure the correct encoding as outlined in getQuery().
-     *
-     * An empty query string value is equivalent to removing the query string.
-     *
-     * @param string $query The query string to use with the new instance.
-     * @return static A new instance with the specified query string.
-     * @throws \InvalidArgumentException for invalid query strings.
-     */
-    public function withQuery($query);
+        $clone = clone $this;
+        $clone->path = $path;
+        return $clone;
+    }
 
-    /**
-     * Return an instance with the specified URI fragment.
-     *
-     * This method MUST retain the state of the current instance, and return
-     * an instance that contains the specified URI fragment.
-     *
-     * Users can provide both encoded and decoded fragment characters.
-     * Implementations ensure the correct encoding as outlined in getFragment().
-     *
-     * An empty fragment value is equivalent to removing the fragment.
-     *
-     * @param string $fragment The fragment to use with the new instance.
-     * @return static A new instance with the specified fragment.
-     */
-    public function withFragment($fragment);
+    public function withQuery($query) {
+        if (!is_string($query)) {
+            throw new \InvalidArgumentException("Invalid query - must be string"); 
+        }
+        $clone = clone $this;
+        $clone->query = $query;
+        return $clone;
+    }
+
+    public function withFragment($fragment) {
+        if (!is_string($query)) {
+            throw new \InvalidArgumentException("Invalid fragment - must be string"); 
+        }
+        $clone = clone $this;
+        $clone->fragment = $fragment;
+        return $clone;
+    }
 
     /**
      * Return the string representation as a URI reference.
@@ -293,7 +261,9 @@ class Uri implements UriInterface {
      * @see http://tools.ietf.org/html/rfc3986#section-4.1
      * @return string
      */
-    public function __toString();
+    public function __toString() {
+
+    }
 
     protected function validSchemes() {
         return ["", "http","https"];
