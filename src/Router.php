@@ -2,13 +2,9 @@
 namespace QuickRouter;
 
 /**
- * Wrapper class for altorouter
+ * Wraps altorouter, adds some additional functionality
  */
 class Router extends \AltoRouter{
-
-	// public function __construct($routes = [], $basePath = '', $matchTypes = []) {
-	// 	parent::__construct($routes, $basePath, $matchTypes);
-	// }
 
 	/**
 	 * Array of callables to be applied to a request before a matched route callback
@@ -28,7 +24,7 @@ class Router extends \AltoRouter{
 	 * name routes after the route string
 	 * 
 	 * This is all because AltoRouter does not return the matched route string
-	 * And we would like to assign matched routes to responses in order to make
+	 * And we would like to assign matched routes to context in order to make
 	 * it easier to determine exactly how a request was routed
 	 */
 	public function map($method, $route, $target, $name = null) {
@@ -47,7 +43,7 @@ class Router extends \AltoRouter{
 
 	/**
 	 * Register middleware
-	 * @param  closure $middleware 
+	 * @param  callable $middleware 
 	 */
 	public function useMiddleware($middleware) {
 		$this->middleware[] = $middleware;
@@ -55,34 +51,33 @@ class Router extends \AltoRouter{
 	}
 
 	/**
-	 * Routes the current request and applies any callbacks that match
-	 * @param  Request  $resquest 
-	 * @param  Response $response
-	 * @return bool - whether or not a match was found
+	 * Routes the current context and applies any callbacks that match
+	 * @param  Context $context
+	 * @return Context
 	 */
-	public function route(Request $request, Response $response) {
+	public function route(Context $context) {
 
-		$match = $this->match();
+		//look for a route match
+		$match = $this->match($context->getRequest()->getUri()->getPath(), $context->getRequest()->getMethod());
 
 		if ($match) {
-			$request->routeParams = $match["params"];
+			//set route params if they exist
+			$context = $context->withRouteParameters($match["params"]);
 		}
 
 		if (!empty($this->middleware)) {
 			foreach ($this->middleware as $m) {
-				$result = true;
 				if (is_callable($m)) {
-					$result = call_user_func_array($m, [$request, $response]); 
+					$context = call_user_func_array($m, [$context]); 
 				}
-				if ($result === false) {
-					return false;
+				if (!($context instanceof Context)) {
+					throw new \RuntimeException("Middleware must return instance of \QuickRouter\Context");
 				}
 			}
 		}
  		
 		if (!$match) {
-			$response->setCode(404);
-			return false;
+			return $context->withResponse($context->getResponse()->withStatus(404));
 		}
 
 		$response->setMatchedRoute($match["name"]);
@@ -91,18 +86,18 @@ class Router extends \AltoRouter{
 			if (!empty($this->basePath)) {
 				$match["target"]->setBasePath($this->basePath);
 			}
-			return $match["target"]->route($request, $response);
+			return $match["target"]->route($context);
 		}
 
+		//@todo handle here if router in array of callbacks
 		if (is_array($match["target"])) {
 			foreach ($match["target"] as $callback) {
-				call_user_func_array($callback, [$request, $response]);
+				$context = call_user_func_array($callback, [$context]);
 			}
 		} elseif(is_callable($match['target']) ) {
-			call_user_func_array($match['target'], [$request, $response]); 
-		} else {
-			$response->setCode(500);
-		}
-		return true;
+			$context = call_user_func_array($match['target'], [$context]); 
+		} 
+
+		return $context;
 	}
 }

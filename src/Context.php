@@ -1,8 +1,5 @@
 <?php 
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
 namespace QuickRouter;
 
 class Context {
@@ -18,66 +15,118 @@ class Context {
 	protected $response;
 
 	/**
+	 * Named parameters extracted from matched route
+	 * @var array
+	 */
+	protected $routeParameters = [];
+
+	/**
 	 * General purpose context meta data field
 	 * @var array
 	 */
-	protected $state = [];
+	protected $state = null;
 
 	/**
-	 * Constructor 
-	 * @param ServerRequestInterface $request
-	 * @param ResponseInterface      $response
+	 * Flag that indicates the context should no longer be routed
+	 * @var boolean
 	 */
-	public function __construct(ServerRequestInterface $request, ResponseInterface $response) {
+	protected $exitRouting = false;
+
+	public function __construct(
+		\Psr\Http\Message\ServerRequestInterface $request, 
+		\Psr\Http\Message\ResponseInterface $response, 
+		$state = null,
+		array $routeParameters = []
+	) {
 		$this->request = $request;
 		$this->response = $response;
+		$this->state = $state;
+		$this->routeParameters = $routeParameters;
 	}
 
 	/**
-	 * Replace the current request instance
-	 * @param ServerRequestInterface $request
-	 */
-	public function setRequest(ServerRequestInterface $request) {
-		$this->request = $request;
-	}
-
-	/**
-	 * Replace the current response instance
-	 * @param ResponseInterface $response
-	 */
-	public function setResponse(ResponseInterface $response) {
-		$this->response = $response;
-	}
-
-	/**
-	 * Request getter
-	 * @return ServerRequestInterface
+	 * Getters
 	 */
 	public function getRequest() {
 		return $this->request;
 	}
-
-	/**
-	 * Response getter
-	 * @return ResponseInterface
-	 */
 	public function getResponse() {
 		return $this->response;
 	}
-
-	//@todo how will these work
-	public function setState() {}
-	public function getState() {}
-
-	public function useRequest($callback) {
-		//@todo validate that this is a function
-		$this->setRequest($callback($this->request));
+	public function getState() {
+		return $this->state;
 	}
-	public function useResponse() {}
-}
+	public function getRouteParameters() {
+		return $this->routeParameters;
+	}
+	public function getRouteParameter($key, $default = null) {
+		return !empty($this->routeParameters[$key]) ? $this->routeParameters[$key] : $default;
+	}
+	public function shouldExitRouting() {
+		return $this->exitRouting;
+	}
 
-//example
-//todo - can this somehow be cleaner??
-// $context->useRequest(function($request) {
-// 	return $request->withHeader("A header");
-// });
+	/**
+	 * Update the context request
+	 * @param  \Psr\Http\Message\ServerRequestInterface $request
+	 * @return Context with provided request
+	 */
+	public function withRequest(\Psr\Http\Message\ServerRequestInterface $request) {
+		return new Context(
+			$request,
+			$this->response,
+			$this->state,
+			$this->routeParameters
+		);
+	}
+
+	/**
+	 * Update the context response
+	 * @param  \Psr\Http\Message\ResponseInterface $response
+	 * @return Context with provided response
+	 */
+	public function withResponse(\Psr\Http\Message\ResponseInterface $response) {
+		return new Context(
+			$this->request,
+			$response,
+			$this->state,
+			$this->routeParameters
+		);
+	}
+
+	/**
+	 * Update the context state
+	 * @param  $state 
+	 * @return Context with provided state
+	 */
+	public function withState($state) {
+		return new Context(
+			$this->request,
+			$this->response,
+			$state,
+			$this->routeParameters
+		);
+	}
+
+	/**
+	 * Update the context route parameters
+	 * @param  $state 
+	 * @return Context with provided route parameters
+	 */
+	public function withRouteParameters($params) {
+		return new Context(
+			$this->request,
+			$this->response,
+			$this->state,
+			$params
+		);
+	}
+
+	/**
+	 * Flags this context to exit routing
+	 * @return Context
+	 */
+	public function _exit() {
+		$this->exit = true;
+	}
+}
