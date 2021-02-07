@@ -57,30 +57,29 @@ class Router extends \AltoRouter{
 	 */
 	public function route(Context $context) {
 
+		if (empty($context->getRequest()->getAttribute("matchedRoutes"))) {
+			$context = $context->withRequest($context->getRequest()->withAttribute("matchedRoutes", []));
+		}
+
 		//look for a route match
 		$match = $this->match($context->getRequest()->getUri()->getPath(), $context->getRequest()->getMethod());
 
-		if ($match) {
-			//set route params if they exist
-			$context = $context->withRouteParameters($match["params"]);
-		}
+		if ($match) $context = $context->withRouteParameters($match["params"]);
 
 		if (!empty($this->middleware)) {
 			foreach ($this->middleware as $m) {
-				if (is_callable($m)) {
-					$context = call_user_func_array($m, [$context]); 
-				}
-				if (!($context instanceof Context)) {
-					throw new \RuntimeException("Middleware must return instance of \QuickRouter\Context");
-				}
+				$context = $this->applyCallback($context, $m);
 			}
 		}
  		
-		if (!$match) {
-			return $context->withResponse($context->getResponse()->withStatus(404));
-		}
-
-		$response->setMatchedRoute($match["name"]);
+		if (!$match) return $context->withResponse($context->getResponse()->withStatus(404));
+		
+		$context = $context->withRequest(
+			$context->getRequest()->withAttribute("matchedRoutes", array_merge(
+				$context->getRequest()->getAttribute("matchedRoutes"),
+				[$match["name"]]
+			))
+		);
 		
 		if ($match["target"] instanceof Router) {
 			if (!empty($this->basePath)) {
@@ -89,14 +88,35 @@ class Router extends \AltoRouter{
 			return $match["target"]->route($context);
 		}
 
-		//@todo handle here if router in array of callbacks
-		if (is_array($match["target"])) {
-			foreach ($match["target"] as $callback) {
-				$context = call_user_func_array($callback, [$context]);
+		//@todo handle here if router in array of callbacks?
+		$context = $this->applyCallback($context, $match["target"]);
+
+		return $context;
+	}
+
+	/**
+	 * Apply the various types of middleware context as it is routed
+	 * @param  Context $context 
+	 * @param  mixed   $callback
+	 * @param  bool    $includeRouters if whether or not to route $context if router encountered
+	 * @return Context
+	 */
+	protected function applyCallback($context, $callback, $handleRouters = false) {
+
+		if (is_array($callback)) {
+			foreach ($callback as $cb) {
+				$context = $this->applyCallback($context, $cb);
 			}
-		} elseif(is_callable($match['target']) ) {
-			$context = call_user_func_array($match['target'], [$context]); 
+		}
+
+		if (is_callable($callback)) {
+			$result = call_user_func_array($callback, [$context]);
+			if ($result instanceof Context) {
+				$context = $result;
+			}
 		} 
+
+		//@todo support PSR15 requesthandler, middleware here
 
 		return $context;
 	}

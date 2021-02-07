@@ -124,9 +124,10 @@ class Context {
 
 	/**
 	 * Flags this context to exit routing
+	 * @todo   implement this
 	 * @return Context
 	 */
-	public function _exit() {
-		$this->exit = true;
-	}
+	// public function _exit() {
+	// 	$this->exit = true;
+	// }
 }
