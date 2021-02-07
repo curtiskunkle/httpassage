@@ -18,13 +18,19 @@ class Context {
 	 * Named parameters extracted from matched route
 	 * @var array
 	 */
-	protected $routeParameters = [];
+	protected $routeParameters;
 
 	/**
 	 * General purpose context meta data field
 	 * @var array
 	 */
 	protected $state = null;
+
+	/**
+	 * List of matched routes set by Router
+	 * @var array
+	 */
+	protected $matchedRoutes;
 
 	/**
 	 * Flag that indicates the context should no longer be routed
@@ -36,12 +42,16 @@ class Context {
 		\Psr\Http\Message\ServerRequestInterface $request, 
 		\Psr\Http\Message\ResponseInterface $response, 
 		$state = null,
-		array $routeParameters = []
+		array $routeParameters = [],
+		array $matchedRoutes = [],
+		$exitRouting = false
 	) {
 		$this->request = $request;
 		$this->response = $response;
 		$this->state = $state;
 		$this->routeParameters = $routeParameters;
+		$this->matchedRoutes = $matchedRoutes;
+		$this->exitRouting = $exitRouting;
 	}
 
 	/**
@@ -62,6 +72,9 @@ class Context {
 	public function getRouteParameter($key, $default = null) {
 		return !empty($this->routeParameters[$key]) ? $this->routeParameters[$key] : $default;
 	}
+	public function getMatchedRoutes() {
+		return $this->matchedRoutes;
+	}
 	public function shouldExitRouting() {
 		return $this->exitRouting;
 	}
@@ -76,7 +89,9 @@ class Context {
 			$request,
 			$this->response,
 			$this->state,
-			$this->routeParameters
+			$this->routeParameters,
+			$this->matchedRoutes,
+			$this->exitRouting
 		);
 	}
 
@@ -90,7 +105,9 @@ class Context {
 			$this->request,
 			$response,
 			$this->state,
-			$this->routeParameters
+			$this->routeParameters,
+			$this->matchedRoutes,
+			$this->exitRouting
 		);
 	}
 
@@ -104,7 +121,9 @@ class Context {
 			$this->request,
 			$this->response,
 			$state,
-			$this->routeParameters
+			$this->routeParameters,
+			$this->matchedRoutes,
+			$this->exitRouting
 		);
 	}
 
@@ -118,16 +137,42 @@ class Context {
 			$this->request,
 			$this->response,
 			$this->state,
-			$params
+			$params,
+			$this->matchedRoutes,
+			$this->exitRouting
 		);
 	}
 
 	/**
-	 * Flags this context to exit routing
+	 * Update the context matched routes
+	 * @param  $state 
+	 * @return Context with provided matched routes
+	 */
+	public function withMatchedRoutes($matchedRoutes) {
+		return new Context(
+			$this->request,
+			$this->response,
+			$this->state,
+			$this->routeParameters,
+			$matchedRoutes,
+			$this->exitRouting
+		);
+	}
+
+	/**
+	 * Flag context to exit routing
 	 * @todo   implement this
 	 * @return Context
 	 */
-	// public function _exit() {
-	// 	$this->exit = true;
-	// }
+	public function withExitFlag($flag) {
+		$flag = $flag ? true : false;
+		return new Context(
+			$this->request,
+			$this->response,
+			$this->state,
+			$this->routeParameters,
+			$this->matchedRoutes,
+			$flag
+		); 
+	}
 }

@@ -74,12 +74,10 @@ class Router extends \AltoRouter{
  		
 		if (!$match) return $context->withResponse($context->getResponse()->withStatus(404));
 		
-		$context = $context->withRequest(
-			$context->getRequest()->withAttribute("matchedRoutes", array_merge(
-				$context->getRequest()->getAttribute("matchedRoutes"),
-				[$match["name"]]
-			))
-		);
+		$context = $context->withMatchedRoutes(array_merge(
+			$context->getMatchedRoutes(),
+			[$match["name"]]
+		));
 		
 		if ($match["target"] instanceof Router) {
 			if (!empty($this->basePath)) {
