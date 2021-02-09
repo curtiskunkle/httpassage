@@ -64,7 +64,10 @@ class Router extends \AltoRouter{
 		//look for a route match
 		$match = $this->match($context->getRequest()->getUri()->getPath(), $context->getRequest()->getMethod());
 
-		if ($match) $context = $context->withRouteParameters($match["params"]);
+		if ($match) $context = $context->withRouteParameters(array_merge(
+			$context->getRouteParameters(),
+			$match["params"]
+		));
 
 		if (!empty($this->middleware)) {
 			foreach ($this->middleware as $m) {
@@ -79,6 +82,7 @@ class Router extends \AltoRouter{
 			[$match["name"]]
 		));
 		
+		//@todo set the matched path so far
 		if ($match["target"] instanceof Router) {
 			if (!empty($this->basePath)) {
 				$match["target"]->setBasePath($this->basePath);

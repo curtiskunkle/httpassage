@@ -20,4 +20,25 @@ class Provider {
         );  
     }
 
+    public static function getMatchTestRoutes() {
+        return [ 
+            ["GET", "/path/test", 1],
+            ["POST", "/path/test", 2],
+            ["PATCH", "/path/test", 3],
+            ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 4],
+            ["GET", "/path/test/[i:id]", 5],
+            ["GET", "/path/test/[i:id]/test", 6],
+            ["GET", "/path/test/[i:id]/test/[a:action]", 7],
+        ];
+    }
+
+    public static function getTestRouter() {
+        $router = \QuickRouter\Factory::createRouter();
+
+        foreach (Provider::getTestRoutes() as $route) {
+            $router->map($route[0], $route[1], function($context) {
+                return $context->withState($route[2]);
+            });
+        }
+    }
 }

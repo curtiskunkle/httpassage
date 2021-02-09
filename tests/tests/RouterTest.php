@@ -42,66 +42,30 @@ class RouterTest extends TestCase {
         $this->assertEquals(is_callable($router->middleware[0]), true);
     }
 
-    // public function testMatchesRoute() {
-    //     $this->setMethodAndPath("GET", "/path/");
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/path/", function($request, $response) {
-    //         $response->data = "test";
-    //     });
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($result, true);
-    //     $this->assertEquals($response->data, "test");
-    //     $this->assertEquals($response->getCode(), 200);
-    // }
+    public function testMatchesRoute() {
 
-    // public function testDoesNotMatchRoute() {
-    //     $this->setMethodAndPath("GET", "/path/");
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/not-path/", function($request, $response) {
-    //         $response->data = "test";
-    //     });
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($result, false);
-    //     $this->assertEquals($response->data, []);
-    //     $this->assertEquals($response->getCode(), 404);
-    // }
+    }
 
-    // public function testAssignsNamedParamsToRequest() {
-    //     $this->setMethodAndPath("GET", "/path/1");
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/path/[i:id]", function($request, $response) {});
-    //     $router->route($request, $response);
-    //     $this->assertEquals($request->routeParams, ["id" => 1]);
-    // }
+    public function testDoesNotMatchRoute() {
 
-    // public function testAppliesMiddleware() {
-    //     $this->setMethodAndPath("GET", "/path/");
+    }
 
-    //     //anon function middleware
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->useMiddleware(function($request, $response) {
-    //         $request->test = 1;
-    //         $response->test = 1;
-    //     });
-    //     $router->map("GET", "/path/", function($request, $response) {
-    //         $response->data = "test";
-    //     });
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($response->test, 1);
-    //     $this->assertEquals($request->test, 1);
-    //     $this->assertEquals($response->data, "test");
+    public function testAssignsNamedParamsToRequest() {
+ 
+    }
 
-    //     //middleware defined as class method
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->useMiddleware("TestMiddleware::perform");
-    //     $router->map("GET", "/path/", function($request, $response) {
-    //         $response->data = "test";
-    //     });
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($response->test, 1);
-    //     $this->assertEquals($request->test, 1);
-    //     $this->assertEquals($response->data, "test");
-    // }
+    //@todo test every type of middleware
+    public function testAppliesMiddleware() {
+
+    }
+
+    public function testUsesBasePath() {
+
+    }
+
+    public function testPassesBasePathToSubrouter() {
+        
+    }
 
     // public function testAppliesCallbacks() {
     //     $this->setMethodAndPath("GET", "/path/");
