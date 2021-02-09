@@ -20,8 +20,10 @@ class Provider {
         );  
     }
 
-    public static function getMatchTestRoutes() {
-        return [ 
+    public static function getTestRouter() {
+        $router = \QuickRouter\Factory::createRouter();
+
+        $routes = [ 
             ["GET", "/path/test", 1],
             ["POST", "/path/test", 2],
             ["PATCH", "/path/test", 3],
@@ -30,15 +32,33 @@ class Provider {
             ["GET", "/path/test/[i:id]/test", 6],
             ["GET", "/path/test/[i:id]/test/[a:action]", 7],
         ];
-    }
 
-    public static function getTestRouter() {
-        $router = \QuickRouter\Factory::createRouter();
-
-        foreach (Provider::getTestRoutes() as $route) {
-            $router->map($route[0], $route[1], function($context) {
+        foreach ($routes as $route) {
+            $router->map($route[0], $route[1], function($context) use ($route) {
                 return $context->withState($route[2]);
             });
         }
+
+        $subRouter = \QuickRouter\Factory::createRouter();
+
+        $routes = [ 
+            ["GET", "/path/test", 8],
+            ["POST", "/path/test", 9],
+            ["PATCH", "/path/test", 10],
+            ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 11],
+            ["GET", "/path/test/[i:id2]", 12],
+            ["GET", "/path/test/[i:id2]/test", 13],
+            ["GET", "/path/test/[i:id2]/test/[a:action2]", 14],
+        ];
+
+        foreach ($routes as $route) {
+            $subRouter->map($route[0], $route[1], function($context) use ($route) {
+                return $context->withState($route[2]);
+            });
+        }
+
+        $router->map("GET|POST|PATCH|DELETE|OPTIONS", "/subrouter.*", $subRouter);
+
+        return $router;
     }
 }

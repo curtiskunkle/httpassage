@@ -4,7 +4,7 @@ namespace QuickRouter;
 
 class Factory {
 
-	public static function createContext($request, $response, $state = [], $params = [], $matchedRoutes = [], $flag = false) {
+	public static function createContext($request, $response, $state = null, $params = [], $matchedRoutes = [], $flag = false) {
 		return new Context($request, $response, $state, $params, $matchedRoutes, $flag);
 	}
 

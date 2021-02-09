@@ -43,29 +43,65 @@ class RouterTest extends TestCase {
     }
 
     public function testMatchesRoute() {
+            // ["GET", "/path/test", 1],
+            // ["POST", "/path/test", 2],
+            // ["PATCH", "/path/test", 3],
+            // ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 4],
+            // ["GET", "/path/test/[i:id]", 5],
+            // ["GET", "/path/test/[i:id]/test", 6],
+            // ["GET", "/path/test/[i:id]/test/[a:action]", 7],
 
+            // subroutes
+            // ["GET", "/path/test", 8],
+            // ["POST", "/path/test", 9],
+            // ["PATCH", "/path/test", 10],
+            // ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 11],
+            // ["GET", "/path/test/[i:id2]", 12],
+            // ["GET", "/path/test/[i:id2]/test", 13],
+            // ["GET", "/path/test/[i:id2]/test/[a:action2]", 14],
+
+        $router = Provider::getTestRouter();
+        $this->assertEquals($router->route(Provider::getContext("GET", "/path/test"))->getState(), 1);
+        $this->assertEquals($router->route(Provider::getContext("POST", "/path/test"))->getState(), 2);
+        $this->assertEquals($router->route(Provider::getContext("PATCH", "/path/test"))->getState(), 3);
+        $this->assertEquals($router->route(Provider::getContext("OPTIONS", "/path/test"))->getState(), 4);
+        $this->assertEquals($router->route(Provider::getContext("DELETE", "/path/test"))->getState(), 4);
+        $this->assertEquals($router->route(Provider::getContext("GET", "/path/test/1"))->getState(), 5);
+        $this->assertEquals($router->route(Provider::getContext("GET", "/path/test/1/test"))->getState(), 6);
+        $this->assertEquals($router->route(Provider::getContext("GET", "/path/test/1/test/action"))->getState(), 7);
+
+        //@todo subrouters not working as expected
+        $this->assertEquals($router->route(Provider::getContext("GET", "/subrouter/path/test"))->getState(), 8);
     }
 
-    public function testDoesNotMatchRoute() {
+    // public function testHandleTrailingSlash() {
 
-    }
+    // }
 
-    public function testAssignsNamedParamsToRequest() {
+    // public function testAssignsMatchedRoute() {
+
+    // }
+
+    // public function testDoesNotMatchRoute() {
+
+    // }
+
+    // public function testAssignsNamedParamsToRequest() {
  
-    }
+    // }
 
-    //@todo test every type of middleware
-    public function testAppliesMiddleware() {
+    // //@todo test every type of middleware
+    // public function testAppliesMiddleware() {
 
-    }
+    // }
 
-    public function testUsesBasePath() {
+    // public function testUsesBasePath() {
 
-    }
+    // }
 
-    public function testPassesBasePathToSubrouter() {
+    // public function testPassesBasePathToSubrouter() {
         
-    }
+    // }
 
     // public function testAppliesCallbacks() {
     //     $this->setMethodAndPath("GET", "/path/");
