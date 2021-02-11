@@ -2,11 +2,7 @@
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase {
-
-    /****************
-	 * ROUTER TESTS 
-	 ****************/
-
+    
 	public function testMapsRoute() {
 		$router = new \QuickRouter\Router();
 		$router->map("GET", "/path/", "callback");
@@ -43,23 +39,6 @@ class RouterTest extends TestCase {
     }
 
     public function testMatchesRoute() {
-            // ["GET", "/path/test", 1],
-            // ["POST", "/path/test", 2],
-            // ["PATCH", "/path/test", 3],
-            // ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 4],
-            // ["GET", "/path/test/[i:id]", 5],
-            // ["GET", "/path/test/[i:id]/test", 6],
-            // ["GET", "/path/test/[i:id]/test/[a:action]", 7],
-
-            // subroutes
-            // ["GET", "/path/test", 8],
-            // ["POST", "/path/test", 9],
-            // ["PATCH", "/path/test", 10],
-            // ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 11],
-            // ["GET", "/path/test/[i:id2]", 12],
-            // ["GET", "/path/test/[i:id2]/test", 13],
-            // ["GET", "/path/test/[i:id2]/test/[a:action2]", 14],
-
         $router = Provider::getTestRouter();
         $this->assertEquals($router->route(Provider::getContext("GET", "/path/test"))->getState(), 1);
         $this->assertEquals($router->route(Provider::getContext("POST", "/path/test"))->getState(), 2);
@@ -69,91 +48,35 @@ class RouterTest extends TestCase {
         $this->assertEquals($router->route(Provider::getContext("GET", "/path/test/1"))->getState(), 5);
         $this->assertEquals($router->route(Provider::getContext("GET", "/path/test/1/test"))->getState(), 6);
         $this->assertEquals($router->route(Provider::getContext("GET", "/path/test/1/test/action"))->getState(), 7);
-
-        //@todo subrouters not working as expected
-        $this->assertEquals($router->route(Provider::getContext("GET", "/subrouter/path/test"))->getState(), 8);
     }
 
-    // public function testHandleTrailingSlash() {
+    public function testHandleTrailingSlash() {
+        $router = Provider::getTestRouter();
+        $this->assertEquals($router->route(Provider::getContext("GET", "/optional/trailing/slash/"))->getState(), 15);
+        $this->assertEquals($router->route(Provider::getContext("GET", "/optional/trailing/slash"))->getState(), 15);
+    }
 
-    // }
+    public function testAssignsMatchedRoute() {
+        $context = Provider::getTestRouter()->route(Provider::getContext("GET", "/path/test"));
+        $this->assertEquals($context->getMatchedRoutes(), ["GET-/path/test"]);
+    }
 
-    // public function testAssignsMatchedRoute() {
+    public function testDoesNotMatchRoute() {
+        $context = Provider::getTestRouter()->route(Provider::getContext("GET", "/invalid/route"));
+        $this->assertEquals($context->getResponse()->getStatusCode(), 404);
+        $this->assertEquals($context->getState(), null);
+        $this->assertEquals($context->getMatchedRoutes(), []);
+    }
 
-    // }
+    public function testAssignsNamedParamsToRequest() {
+        $router = Provider::getTestRouter();
+        $context = $router->route(Provider::getContext("GET", "/path/test/1"));
+        $this->assertEquals($context->getRouteParameters(), ["id" => "1"]);
+        $this->assertEquals($context->getRouteParameter("id"), "1");
 
-    // public function testDoesNotMatchRoute() {
-
-    // }
-
-    // public function testAssignsNamedParamsToRequest() {
- 
-    // }
-
-    // //@todo test every type of middleware
-    // public function testAppliesMiddleware() {
-
-    // }
-
-    // public function testUsesBasePath() {
-
-    // }
-
-    // public function testPassesBasePathToSubrouter() {
-        
-    // }
-
-    // public function testAppliesCallbacks() {
-    //     $this->setMethodAndPath("GET", "/path/");
-
-    //     //test single callback anonymous function
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/path/", function($request, $response) {
-    //         $response->test = 1;
-    //         $request->test = 1;
-    //     });
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($result, true);
-    //     $this->assertEquals($response->test, 1);
-    //     $this->assertEquals($request->test, 1);
-
-    //     //test single callback class method
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/path/", "TestMiddleware::perform");
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($result, true);
-    //     $this->assertEquals($response->test, 1);
-    //     $this->assertEquals($request->test, 1);
-        
-    //     //test array of callbacks
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/path/", [
-    //         "TestMiddleware::perform",
-    //         function($request, $response) {
-    //             $response->test2 = 1;
-    //             $request->test2 = 1;
-    //         }
-    //     ]);
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($result, true);
-    //     $this->assertEquals($response->test, 1);
-    //     $this->assertEquals($request->test, 1);
-    //     $this->assertEquals($response->test2, 1);
-    //     $this->assertEquals($request->test2, 1);
-
-    //     $this->setMethodAndPath("GET", "/path/1");
-
-    //     //test subrouter
-    //     $subRouter = new \QuickRouter\Router();
-    //     $subRouter->map("GET", "/path/[i:id]", function($request, $response) {
-    //         $response->subRouterApplied = 1;
-    //     });
-
-    //     list($router, $request, $response) = $this->getRouterObjects();
-    //     $router->map("GET", "/path.*", $subRouter);
-    //     $result = $router->route($request, $response);
-    //     $this->assertEquals($result, true);
-    //     $this->assertEquals($response->subRouterApplied, 1);
-    //     $this->assertEquals($request->routeParams, ["id" => 1]);
-    // }
+        $context = $router->route(Provider::getContext("GET", "/path/test/1/test/action"));
+        $this->assertEquals($context->getRouteParameters(), ["id" => "1", "action" => "action"]);
+        $this->assertEquals($context->getRouteParameter("id"), "1");
+        $this->assertEquals($context->getRouteParameter("action"), "action");
+    }
 }

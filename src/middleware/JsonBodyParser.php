@@ -1,13 +1,12 @@
 <?php 
-namespace QuickRouter;
+namespace QuickRouter\Middleware;
 /**
  * Default JSON body parse middleware
  */
 class JsonBodyParser  {
-	public function parse($request, $response) {
-		if ($request->getContentType() === 'application/json') {
-			$body = json_decode($request->rawInput, true);
-			$request->body = is_array($body) ? $body : null;
-		}
+	public function __construct() {
+		return function($context) {
+			//...
+		};
 	}
 }

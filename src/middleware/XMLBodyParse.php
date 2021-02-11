@@ -1,12 +1,12 @@
 <?php 
-namespace QuickRouter;
+namespace QuickRouter\Middleware;
 /**
  * Default XML body parse middleware
  */
 class XMLBodyParser  {
-	public function parse($request, $response) {
-		if ($request->getContentType() === 'application/xml') {
-			//@todo
-		}
+	public function __construct() {
+		return function($context) {
+			//...
+		};
 	}
 }

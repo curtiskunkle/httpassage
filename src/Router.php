@@ -82,15 +82,6 @@ class Router extends \AltoRouter{
 			[$match["name"]]
 		));
 		
-		//@todo set the matched path so far
-		if ($match["target"] instanceof Router) {
-			if (!empty($this->basePath)) {
-				$match["target"]->setBasePath($this->basePath);
-			}
-			return $match["target"]->route($context);
-		}
-
-		//@todo handle here if router in array of callbacks?
 		$context = $this->applyCallback($context, $match["target"]);
 
 		return $context;
