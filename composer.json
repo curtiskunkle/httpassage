@@ -18,6 +18,10 @@
         "guzzlehttp/psr7": "^1.7"
     },
     "scripts": {
-        "test": "\"vendor/bin/phpunit\" --testsuite \"all\""
+        "test": "\"vendor/bin/phpunit\" --testsuite \"all\"",
+        "buildimage": "docker build -t quick-router-test-image .",
+        "runimage": "docker run -t -d --rm --name quick_router_test quick-router-test-image",
+        "stopimage": "docker run -t -d --rm --name quick_router_test quick-router-test-image",
+        "testimage": "docker exec quick_router_test composer test"
     }
 }
