@@ -1,5 +1,0 @@
-RewriteEngine on
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} !/assets/
-RewriteRule . example/example.php [L]
