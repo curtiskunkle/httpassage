@@ -79,4 +79,12 @@ class RouterTest extends TestCase {
         $this->assertEquals($context->getRouteParameter("id"), "1");
         $this->assertEquals($context->getRouteParameter("action"), "action");
     }
+
+    public function testAppliesPSR15RequestHandler() {
+        $router = new \QuickRouter\Router();
+        $router->map("GET", "/path/?", new RequestHandlerInterfaceExample());
+        $context = Provider::getContext();
+        $context = $router->route($context);
+        $this->assertEquals($context->getResponse()->getBody()->__toString(), "Applied request handler");
+    }
 }

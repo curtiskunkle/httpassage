@@ -1,5 +1,7 @@
 <?php 
 namespace QuickRouter;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Wraps altorouter, adds some additional functionality
@@ -96,11 +98,23 @@ class Router extends \AltoRouter{
 	 */
 	protected function applyCallback($context, $callback, $handleRouters = false) {
 
+		//array of callbacks
 		if (is_array($callback)) {
 			foreach ($callback as $cb) {
 				$context = $this->applyCallback($context, $cb);
 			}
 		}
+
+		//PSR15 RequestHandlerInterface
+		if ($callback instanceof \Psr\Http\Server\RequestHandlerInterface) {
+			$response = $callback->handle($context->getRequest());
+			return $response instanceof \Psr\Http\Message\ResponseInterface
+				? $context->withResponse($response)
+				: $context;
+		}
+
+		//PSR15 MiddlewareInterface
+		//@todo
 
 		if (is_callable($callback)) {
 			$result = call_user_func_array($callback, [$context]);
@@ -108,8 +122,6 @@ class Router extends \AltoRouter{
 				$context = $result;
 			}
 		} 
-
-		//@todo support PSR15 requesthandler, middleware here
 
 		return $context;
 	}
