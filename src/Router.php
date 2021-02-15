@@ -59,44 +59,45 @@ class Router extends \AltoRouter{
 	 */
 	public function route(Context $context) {
 
-		if (empty($context->getRequest()->getAttribute("matchedRoutes"))) {
-			$context = $context->withRequest($context->getRequest()->withAttribute("matchedRoutes", []));
-		}
-
 		//look for a route match
 		$match = $this->match($context->getRequest()->getUri()->getPath(), $context->getRequest()->getMethod());
 
-		if ($match) $context = $context->withRouteParameters(array_merge(
-			$context->getRouteParameters(),
-			$match["params"]
-		));
+		if ($match) {
+			$context = $context->withRouteParameters(array_merge(
+				$context->getRouteParameters(),
+				$match["params"]
+			))->withMatchedRoutes(array_merge(
+				$context->getMatchedRoutes(),
+				[$match["name"]]
+			));	
+		} 
 
+		/**
+		 * Middleware assigned to router will be applied
+		 * if there is a match or not
+		 */
 		if (!empty($this->middleware)) {
 			foreach ($this->middleware as $m) {
 				$context = $this->applyCallback($context, $m);
 			}
 		}
  		
-		if (!$match) return $context->withResponse($context->getResponse()->withStatus(404));
-		
-		$context = $context->withMatchedRoutes(array_merge(
-			$context->getMatchedRoutes(),
-			[$match["name"]]
-		));
-		
-		$context = $this->applyCallback($context, $match["target"]);
-
-		return $context;
+ 		/**
+ 		 * If there is a match, apply the assigned callbacks
+ 		 * Otherwise, just return context after setting a 404 on the response
+ 		 */
+		return $match 
+			? $this->applyCallback($context, $match["target"])
+			: $context->withResponse($context->getResponse()->withStatus(404));
 	}
 
 	/**
 	 * Apply the various types of middleware context as it is routed
 	 * @param  Context $context 
 	 * @param  mixed   $callback
-	 * @param  bool    $includeRouters if whether or not to route $context if router encountered
 	 * @return Context
 	 */
-	protected function applyCallback($context, $callback, $handleRouters = false) {
+	protected function applyCallback($context, $callback) {
 
 		//array of callbacks
 		if (is_array($callback)) {

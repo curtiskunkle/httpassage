@@ -93,8 +93,6 @@ class RouterTest extends TestCase {
         $router->map("GET", "/path/?", new MiddlewareInterfaceExample1());
         $context = Provider::getContext();
         $context = $router->route($context);
-        //@todo is this losing the matched route?
-        print_r($context->getRequest()->getAttributes());die;
         $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
     }
 }
