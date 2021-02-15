@@ -87,4 +87,14 @@ class RouterTest extends TestCase {
         $context = $router->route($context);
         $this->assertEquals($context->getResponse()->getBody()->__toString(), "Applied request handler");
     }
+
+    public function testAppliesPSR15Middleware1() {
+        $router = new \QuickRouter\Router();
+        $router->map("GET", "/path/?", new MiddlewareInterfaceExample1());
+        $context = Provider::getContext();
+        $context = $router->route($context);
+        //@todo is this losing the matched route?
+        print_r($context->getRequest()->getAttributes());die;
+        $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
+    }
 }

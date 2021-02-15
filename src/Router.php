@@ -105,6 +105,8 @@ class Router extends \AltoRouter{
 			}
 		}
 
+		//@todo abstract these into individual "CallbackHandlers"
+
 		//PSR15 RequestHandlerInterface
 		if ($callback instanceof \Psr\Http\Server\RequestHandlerInterface) {
 			$response = $callback->handle($context->getRequest());
@@ -115,15 +117,18 @@ class Router extends \AltoRouter{
 
 		//PSR15 MiddlewareInterface
 		if ($callback instanceof \Psr\Http\Server\MiddlewareInterface) {
-			$handler = new PassThroughRequestHandler();
+			$handler = new Middleware\PassThroughRequestHandler();
 			$handler->setRequest($context->getRequest());
-			$handler->setResponse($context->setResponse());
+			$handler->setResponse($context->getResponse());
 			$response = $callback->process($context->getRequest(), $handler);
 			if ($response instanceof \Psr\Http\Message\ResponseInterface) {
 				$context = $context->withResponse($response);
 			}
-
-			//@todo: check if we can get req from $handler after it runs through middleware
+			$handledRequest = $handler->getRequest();
+			if ($handledRequest instanceof \Psr\Http\Message\ServerRequestInterface) {
+				$context = $context->withRequest($handledRequest);
+			}
+			return $context;
 		}
 
 		if (is_callable($callback)) {
@@ -131,6 +136,7 @@ class Router extends \AltoRouter{
 			if ($result instanceof Context) {
 				$context = $result;
 			}
+			return $context;
 		} 
 
 		return $context;
