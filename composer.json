@@ -1,9 +1,10 @@
 {
-    "name": "curtiskunkle/quick-router",
-    "description": "A tiny library for routing and processing HTTP requests",
+    "name": "ckunkle/quick-router",
+    "description": "A simple, flexible library for routing and processing PSR-7 messages",
     "type": "library",
     "autoload": {
         "psr-4": {
+            "QuickRouter\\CallbackHandler\\": "./src/callbackhandlers",
             "QuickRouter\\Middleware\\": "./src/middleware",
             "QuickRouter\\": "./src"
         }

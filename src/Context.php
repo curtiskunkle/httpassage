@@ -51,7 +51,7 @@ class Context {
 		$this->state = $state;
 		$this->routeParameters = $routeParameters;
 		$this->matchedRoutes = $matchedRoutes;
-		$this->exitRouting = $exitRouting;
+		$this->exitRouting = $exitRouting ? true : false;
 	}
 
 	/**
@@ -161,10 +161,10 @@ class Context {
 
 	/**
 	 * Flag context to exit routing
-	 * @todo   implement this
+	 * @param  $flag
 	 * @return Context
 	 */
-	public function withExitFlag($flag) {
+	public function withExitFlag($flag = true) {
 		$flag = $flag ? true : false;
 		return new Context(
 			$this->request,

@@ -79,8 +79,12 @@ class Router extends \AltoRouter{
 		if (!empty($this->middleware)) {
 			foreach ($this->middleware as $m) {
 				$context = $this->applyCallback($context, $m);
+				if ($context->shouldExitRouting()) break;
 			}
 		}
+
+		//if this flag set by middleware, do not apply callbacks
+		if ($context->shouldExitRouting()) return $context;
  		
  		/**
  		 * If there is a match, apply the assigned callbacks
@@ -103,6 +107,12 @@ class Router extends \AltoRouter{
 		if (is_array($callback)) {
 			foreach ($callback as $cb) {
 				$context = $this->applyCallback($context, $cb);
+				if (!($context instanceof Context)) {
+					throw new \RuntimeException("QuickRouter callback must return an instance of \QuickRouter\Context");
+				}
+				if ($context->shouldExitRouting()) {
+					return $context;
+				}
 			}
 		}
 

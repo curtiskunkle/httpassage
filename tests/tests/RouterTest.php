@@ -38,6 +38,11 @@ class RouterTest extends TestCase {
         $this->assertEquals(is_callable($router->middleware[0]), true);
     }
 
+    //@todo
+    public function testAppliesRegisteredMiddleware() {
+
+    }
+
     public function testMatchesRoute() {
         $router = Provider::getTestRouter();
         $this->assertEquals($router->route(Provider::getContext("GET", "/path/test"))->getState(), 1);
@@ -94,5 +99,50 @@ class RouterTest extends TestCase {
         $context = Provider::getContext();
         $context = $router->route($context);
         $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
+    }
+
+    //@todo more psr15 middleware tests
+    
+    public function testExitFlagAgainstMiddleware() {
+        $router = new \QuickRouter\Router();
+        $router->useMiddleware(function($context) {
+            return $context->withState("test");
+        });
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getState(), "test");
+
+        $router = new \QuickRouter\Router();
+        $router->useMiddleware(function($context) {
+            return $context->withExitFlag();
+        });
+        $router->useMiddleware(function($context) {
+            return $context->withState("test");
+        });
+
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getState(), null);
+    }
+
+    public function testExitFlagAgainstCallbacks() {
+        $router = new \QuickRouter\Router();
+        $router->map("GET", "/path/?", [
+            function ($context) {
+                return $context->withState("test");
+            }
+        ]);
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getState(), "test");
+
+        $router = new \QuickRouter\Router();
+        $router->map("GET", "/path/?", [
+            function ($context) {
+                return $context->withExitFlag();
+            },
+            function ($context) {
+                return $context->withState("test");
+            }
+        ]);
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getState(), null);
     }
 }
