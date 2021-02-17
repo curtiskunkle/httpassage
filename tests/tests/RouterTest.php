@@ -38,9 +38,9 @@ class RouterTest extends TestCase {
         $this->assertEquals(is_callable($router->middleware[0]), true);
     }
 
-    //@todo
+    
     public function testAppliesRegisteredMiddleware() {
-
+        //@todo
     }
 
     public function testMatchesRoute() {
@@ -144,5 +144,52 @@ class RouterTest extends TestCase {
         ]);
         $context = $router->route(Provider::getContext());
         $this->assertEquals($context->getState(), null);
+    }
+
+    public function testThrowsRuntimeExceptionIfCallbackDoesNotReturnContext() {
+        //@todo
+    }
+
+    public function testUsesCallbackHandlers() {
+        $router = new \QuickRouter\Router();
+        $router->useCallbackHandlers([
+            new \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
+            new \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler(),
+        ]);
+
+        $handlers = $router->getCallbackHandlers();
+        $this->assertEquals(count($handlers), 2);
+        $this->assertEquals($handlers[0] instanceof \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler, true);
+        $this->assertEquals($handlers[1] instanceof \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler, true);
+    }
+
+    public function testAddsCallbackHandler() {
+        $router = new \QuickRouter\Router();
+        $router->addCallbackHandler(new StringCallbackHandler());
+        $handlers = $router->getCallbackHandlers();
+        $this->assertEquals(count($handlers), 4);
+        $this->assertEquals($handlers[3] instanceof StringCallbackHandler, true);
+    }
+
+    public function testAppliesCustomCallbackHandler() {
+        $router = new \QuickRouter\Router();
+        $router->addCallbackHandler(new StringCallbackHandler());
+        $router->map("GET", "/path/?", "Test string");
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getResponse()->getBody()->__toString(), "Test string");
+    }
+
+    public function testAppliesCustomCallbackHandlerInArray() {
+        $router = new \QuickRouter\Router();
+        $router->addCallbackHandler(new StringCallbackHandler());
+        $router->map("GET", "/path/?", [
+            function($context) {
+                return $context->withState("test");
+            },
+            "Test string",
+        ]);
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getResponse()->getBody()->__toString(), "Test string");
+        $this->assertEquals($context->getState(), "test");
     }
 }

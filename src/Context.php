@@ -1,8 +1,10 @@
 <?php 
 
 namespace QuickRouter;
+use Psr\Http\Message\ServerRequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 
-class Context {
+class Context implements ContextInterface {
 
 	/**
 	 * A PSR7 ServerRequest
@@ -39,8 +41,8 @@ class Context {
 	protected $exitRouting = false;
 
 	public function __construct(
-		\Psr\Http\Message\ServerRequestInterface $request, 
-		\Psr\Http\Message\ResponseInterface $response, 
+		Request $request, 
+		Response $response, 
 		$state = null,
 		array $routeParameters = [],
 		array $matchedRoutes = [],
@@ -57,10 +59,10 @@ class Context {
 	/**
 	 * Getters
 	 */
-	public function getRequest() {
+	public function getRequest(): Request {
 		return $this->request;
 	}
-	public function getResponse() {
+	public function getResponse(): Response {
 		return $this->response;
 	}
 	public function getState() {
@@ -75,7 +77,7 @@ class Context {
 	public function getMatchedRoutes() {
 		return $this->matchedRoutes;
 	}
-	public function shouldExitRouting() {
+	public function shouldExitRouting(): bool {
 		return $this->exitRouting;
 	}
 
@@ -84,7 +86,7 @@ class Context {
 	 * @param  \Psr\Http\Message\ServerRequestInterface $request
 	 * @return Context with provided request
 	 */
-	public function withRequest(\Psr\Http\Message\ServerRequestInterface $request) {
+	public function withRequest(Request $request): ContextInterface {
 		return new Context(
 			$request,
 			$this->response,
@@ -100,7 +102,7 @@ class Context {
 	 * @param  \Psr\Http\Message\ResponseInterface $response
 	 * @return Context with provided response
 	 */
-	public function withResponse(\Psr\Http\Message\ResponseInterface $response) {
+	public function withResponse(Response $response): ContextInterface {
 		return new Context(
 			$this->request,
 			$response,
@@ -116,7 +118,7 @@ class Context {
 	 * @param  $state 
 	 * @return Context with provided state
 	 */
-	public function withState($state) {
+	public function withState($state): ContextInterface {
 		return new Context(
 			$this->request,
 			$this->response,
@@ -132,7 +134,7 @@ class Context {
 	 * @param  $state 
 	 * @return Context with provided route parameters
 	 */
-	public function withRouteParameters($params) {
+	public function withRouteParameters($params): ContextInterface {
 		return new Context(
 			$this->request,
 			$this->response,
@@ -148,7 +150,7 @@ class Context {
 	 * @param  $state 
 	 * @return Context with provided matched routes
 	 */
-	public function withMatchedRoutes($matchedRoutes) {
+	public function withMatchedRoutes($matchedRoutes): ContextInterface {
 		return new Context(
 			$this->request,
 			$this->response,
@@ -164,7 +166,7 @@ class Context {
 	 * @param  $flag
 	 * @return Context
 	 */
-	public function withExitFlag($flag = true) {
+	public function withExitFlag($flag = true): ContextInterface {
 		$flag = $flag ? true : false;
 		return new Context(
 			$this->request,

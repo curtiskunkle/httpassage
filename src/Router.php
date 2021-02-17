@@ -2,17 +2,35 @@
 namespace QuickRouter;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use QuickRouter\CallbackHandler\CallbackHandlerInterface as Callbackhandler;
 
 /**
  * Wraps altorouter, adds some additional functionality
  */
 class Router extends \AltoRouter{
 
+	public function __construct($routes = [], $basePath = '', $matchTypes = []) {
+		parent::__construct($routes, $basePath, $matchTypes);
+
+		//set default callback handlers
+		$this->useCallbackHandlers([
+			new \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
+			new \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler(),
+			new \QuickRouter\CallbackHandler\CallableCallbackHandler(),
+		]);
+	}
+
 	/**
 	 * Array of callables to be applied to a request before a matched route callback
 	 * @var array
 	 */
 	public $middleware = [];
+
+	/**
+	 * Array of callback handlers
+	 * @var array
+	 */
+	protected $callbackHandlers = [];
 
 	/**
 	 * Add route getter since AltoRouter does not provide one
@@ -50,6 +68,30 @@ class Router extends \AltoRouter{
 	public function useMiddleware($middleware) {
 		$this->middleware[] = $middleware;
 		return $this;
+	}
+
+	/**
+	 * Set the callback handlers
+	 * @param  array $handlers array of instances of classes that implement callback handler
+	 */
+	public function useCallbackHandlers(array $handlers) {
+		if (empty($handlers)) throw new \InvalidArgumentException("Parameter 'handlers' cannot be empty");
+		$this->callbackHandlers = [];
+		foreach ($handlers as $handler) {
+			$this->addCallbackHandler($handler);
+		}
+	}
+
+	/**
+	 * Append a handler to the callback handlers
+	 * @param CallbackHandler $handler
+	 */
+	public function addCallbackHandler(CallbackHandler $handler) {
+		$this->callbackHandlers[] = $handler;
+	}
+
+	public function getCallbackHandlers() {
+		return $this->callbackHandlers;
 	}
 
 	/**
@@ -116,39 +158,11 @@ class Router extends \AltoRouter{
 			}
 		}
 
-		//@todo abstract these into individual "CallbackHandlers"
-
-		//PSR15 RequestHandlerInterface
-		if ($callback instanceof \Psr\Http\Server\RequestHandlerInterface) {
-			$response = $callback->handle($context->getRequest());
-			return $response instanceof \Psr\Http\Message\ResponseInterface
-				? $context->withResponse($response)
-				: $context;
+		foreach ($this->callbackHandlers as $handler) {
+			if ($handler->meetsCriteria($callback)) {
+				return $handler->handle($context, $callback);
+			}
 		}
-
-		//PSR15 MiddlewareInterface
-		if ($callback instanceof \Psr\Http\Server\MiddlewareInterface) {
-			$handler = new Middleware\PassThroughRequestHandler();
-			$handler->setRequest($context->getRequest());
-			$handler->setResponse($context->getResponse());
-			$response = $callback->process($context->getRequest(), $handler);
-			if ($response instanceof \Psr\Http\Message\ResponseInterface) {
-				$context = $context->withResponse($response);
-			}
-			$handledRequest = $handler->getRequest();
-			if ($handledRequest instanceof \Psr\Http\Message\ServerRequestInterface) {
-				$context = $context->withRequest($handledRequest);
-			}
-			return $context;
-		}
-
-		if (is_callable($callback)) {
-			$result = call_user_func_array($callback, [$context]);
-			if ($result instanceof Context) {
-				$context = $result;
-			}
-			return $context;
-		} 
 
 		return $context;
 	}
