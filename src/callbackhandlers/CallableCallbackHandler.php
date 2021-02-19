@@ -1,7 +1,7 @@
 <?php
 
-namespace QuickRouter\CallbackHandler;
-use QuickRouter\ContextInterface as Context;
+namespace HTTPassage\CallbackHandler;
+use HTTPassage\ContextInterface as Context;
 
 /**
  * Handles callable. The callable should be a function that accepts and returns Context

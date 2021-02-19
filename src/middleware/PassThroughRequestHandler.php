@@ -1,13 +1,13 @@
 <?php 
 
-namespace QuickRouter\Middleware;
+namespace HTTPassage\Middleware;
 
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Server\RequestHandlerInterface as RequestHandler;
 
 /**
- * QuickRouter uses this handler when processing PSR15 middleware.
+ * HTTPassage uses this handler when processing PSR15 middleware.
  *
  * In order to capture changes to requests and responses when using PSR15 middleware,
  * we set the original request and response on this handler before passing it to the middleware.

@@ -1,7 +1,7 @@
 <?php
 
-namespace QuickRouter\CallbackHandler;
-use QuickRouter\ContextInterface as Context;
+namespace HTTPassage\CallbackHandler;
+use HTTPassage\ContextInterface as Context;
 
 /**
  * Handles a PSR-15 RequestHandler.  If the handler returns a response, sets 

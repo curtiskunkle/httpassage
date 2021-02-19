@@ -14,14 +14,14 @@ class Provider {
     }
 
     public static function getContext($method = Provider::DEFAULT_METHOD, $url = Provider::DEFAULT_URL) {
-        return new \QuickRouter\Context(
+        return new \HTTPassage\Context(
             Provider::getRequest($method, $url),
             Provider::getResponse()
         );  
     }
 
     public static function getTestRouter() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
 
         $routes = [ 
             ["GET", "/path/test", 1],
@@ -39,26 +39,6 @@ class Provider {
                 return $context->withState($route[2]);
             });
         }
-
-        // $router = new \QuickRouter\Router();
-
-        // $routes = [ 
-        //     ["GET", "/path/test", 8],
-        //     ["POST", "/path/test", 9],
-        //     ["PATCH", "/path/test", 10],
-        //     ["GET|POST|PATCH|DELETE|OPTIONS", "/path/test", 11],
-        //     ["GET", "/path/test/[i:id2]", 12],
-        //     ["GET", "/path/test/[i:id2]/test", 13],
-        //     ["GET", "/path/test/[i:id2]/test/[a:action2]", 14],
-        // ];
-
-        // foreach ($routes as $route) {
-        //     $subRouter->map($route[0], $route[1], function($context) use ($route) {
-        //         return $context->withState($route[2]);
-        //     });
-        // }
-
-        // $router->map("GET|POST|PATCH|DELETE|OPTIONS", "/subrouter.*", new \QuickRouter\Middleware\SubRouter($subRouter));
 
         return $router;
     }

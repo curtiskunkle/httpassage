@@ -1,7 +1,7 @@
 <?php
 
-use \QuickRouter\ContextInterface as Context;
-use \QuickRouter\CallbackHandler\CallbackHandlerInterface as CallbackHandler;
+use HTTPassage\ContextInterface as Context;
+use HTTPassage\CallbackHandler\CallbackHandlerInterface as CallbackHandler;
 
 class StringCallbackHandler implements CallbackHandler {
 

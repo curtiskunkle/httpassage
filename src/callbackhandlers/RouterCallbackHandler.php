@@ -1,12 +1,12 @@
 <?php
 
-namespace QuickRouter\CallbackHandler;
-use QuickRouter\ContextInterface as Context;
+namespace HTTPassage\CallbackHandler;
+use HTTPassage\ContextInterface as Context;
 
 class RouterCallbackHandler implements CallbackHandlerInterface {
 
 	public function meetsCriteria($callback): bool {
-		return $callback instanceof \QuickRouter\Router;
+		return $callback instanceof \HTTPassage\Router;
 	}
 
 	public function handle(Context $context, $callback):Context {

@@ -1,12 +1,12 @@
 {
-    "name": "ckunkle/quick-router",
+    "name": "ckunkle/httpassage",
     "description": "A simple, flexible library for routing and processing PSR-7 messages",
     "type": "library",
     "autoload": {
         "psr-4": {
-            "QuickRouter\\CallbackHandler\\": "./src/callbackhandlers",
-            "QuickRouter\\Middleware\\": "./src/middleware",
-            "QuickRouter\\": "./src"
+            "HTTPassage\\CallbackHandler\\": "./src/callbackhandlers",
+            "HTTPassage\\Middleware\\": "./src/middleware",
+            "HTTPassage\\": "./src"
         }
     },
     "require": {
@@ -21,10 +21,6 @@
         "guzzlehttp/psr7": "^1.7"
     },
     "scripts": {
-        "test": "\"vendor/bin/phpunit\" --testsuite \"all\"",
-        "build": "docker build -t quick-router-test-image .",
-        "up": "docker run -i -d -v C:/wamp/www/quick-router:/usr/src/quickrouter --rm --name quick_router_test quick-router-test-image",
-        "down": "docker stop quick_router_test",
-        "testimage": "docker exec quick_router_test composer test"
+        "test": "\"vendor/bin/phpunit\" --testsuite \"all\""
     }
 }

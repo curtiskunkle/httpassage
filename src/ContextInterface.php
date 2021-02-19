@@ -1,6 +1,6 @@
 <?php 
 
-namespace QuickRouter;
+namespace HTTPassage;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Http\Message\ResponseInterface as Response;
 

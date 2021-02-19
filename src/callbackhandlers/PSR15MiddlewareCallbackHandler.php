@@ -1,7 +1,7 @@
 <?php
 
-namespace QuickRouter\CallbackHandler;
-use QuickRouter\ContextInterface as Context;
+namespace HTTPassage\CallbackHandler;
+use HTTPassage\ContextInterface as Context;
 
 /**
  * Handles PSR-15 Middleware callback
@@ -14,7 +14,7 @@ class PSR15MiddlewareCallbackHandler implements CallbackHandlerInterface {
 	}
 
 	public function handle(Context $context, $callback):Context {
-		$handler = new \QuickRouter\Middleware\PassThroughRequestHandler();
+		$handler = new \HTTPassage\Middleware\PassThroughRequestHandler();
 		$handler->setRequest($context->getRequest());
 		$handler->setResponse($context->getResponse());
 		$response = $callback->process($context->getRequest(), $handler);

@@ -1,8 +1,8 @@
 <?php 
-namespace QuickRouter;
+namespace HTTPassage;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use QuickRouter\CallbackHandler\CallbackHandlerInterface as Callbackhandler;
+use HTTPassage\CallbackHandler\CallbackHandlerInterface as Callbackhandler;
 
 /**
  * Wraps altorouter, adds some additional functionality
@@ -14,10 +14,10 @@ class Router extends \AltoRouter{
 
 		//set default callback handlers
 		$this->useCallbackHandlers([
-			new \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
-			new \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler(),
-			new \QuickRouter\CallbackHandler\RouterCallbackHandler(),
-			new \QuickRouter\CallbackHandler\CallableCallbackHandler(),
+			new \HTTPassage\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
+			new \HTTPassage\CallbackHandler\PSR15MiddlewareCallbackHandler(),
+			new \HTTPassage\CallbackHandler\RouterCallbackHandler(),
+			new \HTTPassage\CallbackHandler\CallableCallbackHandler(),
 		]);
 	}
 
@@ -166,7 +166,7 @@ class Router extends \AltoRouter{
 			foreach ($callback as $cb) {
 				$context = $this->applyCallback($context, $cb);
 				if (!($context instanceof Context)) {
-					throw new \RuntimeException("QuickRouter callback must return an instance of \QuickRouter\Context");
+					throw new \RuntimeException("HTTPassage callback must return an instance of \HTTPassage\Context");
 				}
 				if ($context->shouldExitRouting()) {
 					return $context;

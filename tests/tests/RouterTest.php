@@ -4,7 +4,7 @@ use PHPUnit\Framework\TestCase;
 class RouterTest extends TestCase {
     
 	public function testMapsRoute() {
-		$router = new \QuickRouter\Router();
+		$router = new \HTTPassage\Router();
 		$router->map("GET", "/path/", "callback");
         $this->assertEquals($router->getRoutes()[0], [
             "GET",
@@ -15,7 +15,7 @@ class RouterTest extends TestCase {
 	}
 
     public function testShorthandMapsRoute() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->get("/path/", "callback");
         $router->post("/path/", "callback");
         $router->put("/path/", "callback");
@@ -33,14 +33,14 @@ class RouterTest extends TestCase {
     }
 
     public function testRegistersMiddleware() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->addMiddleware(function($context) {});
         $this->assertEquals(is_callable($router->getMiddleware()[0]), true);
     }
 
     
     public function testAppliesRegisteredMiddleware() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->useMiddleware([
             function ($context) {
                 return $context->withRequest($context->getRequest()->withAttribute("test", "test"));
@@ -99,7 +99,7 @@ class RouterTest extends TestCase {
     }
 
     public function testAppliesPSR15RequestHandler() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->map("GET", "/path/?", new RequestHandlerInterfaceExample());
         $context = Provider::getContext();
         $context = $router->route($context);
@@ -107,7 +107,7 @@ class RouterTest extends TestCase {
     }
 
     public function testAppliesPSR15Middleware1() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->map("GET", "/path/?", new MiddlewareInterfaceExample1());
         $context = Provider::getContext();
         $context = $router->route($context);
@@ -115,7 +115,7 @@ class RouterTest extends TestCase {
     }
 
     public function testAppliesPSR15Middleware2() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->map("GET", "/path/?", new MiddlewareInterfaceExample2());
         $context = Provider::getContext();
         $context = $router->route($context);
@@ -124,13 +124,13 @@ class RouterTest extends TestCase {
     }
     
     public function testRouterCallbackHandlerRoutesRequest() {
-        $subRouter = new \QuickRouter\Router();
+        $subRouter = new \HTTPassage\Router();
         $subRouter->map("GET", "/path/example/?", [
             new MiddlewareInterfaceExample1(),
             new MiddlewareInterfaceExample2(),
         ]);
 
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->map("GET", "/path.*", $subRouter);
         $context = $router->route(Provider::getContext("GET", "http://example.io/path/example"));
         $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
@@ -139,14 +139,14 @@ class RouterTest extends TestCase {
     }
     
     public function testExitFlagAgainstMiddleware() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->addMiddleware(function($context) {
             return $context->withState("test");
         });
         $context = $router->route(Provider::getContext());
         $this->assertEquals($context->getState(), "test");
 
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->addMiddleware(function($context) {
             return $context->withExitFlag();
         });
@@ -159,7 +159,7 @@ class RouterTest extends TestCase {
     }
 
     public function testExitFlagAgainstCallbacks() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->map("GET", "/path/?", [
             function ($context) {
                 return $context->withState("test");
@@ -168,7 +168,7 @@ class RouterTest extends TestCase {
         $context = $router->route(Provider::getContext());
         $this->assertEquals($context->getState(), "test");
 
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->map("GET", "/path/?", [
             function ($context) {
                 return $context->withExitFlag();
@@ -182,20 +182,20 @@ class RouterTest extends TestCase {
     }
 
     public function testUsesCallbackHandlers() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->useCallbackHandlers([
-            new \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
-            new \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler(),
+            new \HTTPassage\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
+            new \HTTPassage\CallbackHandler\PSR15MiddlewareCallbackHandler(),
         ]);
 
         $handlers = $router->getCallbackHandlers();
         $this->assertEquals(count($handlers), 2);
-        $this->assertEquals($handlers[0] instanceof \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler, true);
-        $this->assertEquals($handlers[1] instanceof \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler, true);
+        $this->assertEquals($handlers[0] instanceof \HTTPassage\CallbackHandler\PSR15RequestHandlerCallbackHandler, true);
+        $this->assertEquals($handlers[1] instanceof \HTTPassage\CallbackHandler\PSR15MiddlewareCallbackHandler, true);
     }
 
     public function testAddsCallbackHandler() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->addCallbackHandler(new StringCallbackHandler());
         $handlers = $router->getCallbackHandlers();
         $this->assertEquals(count($handlers), 5);
@@ -203,7 +203,7 @@ class RouterTest extends TestCase {
     }
 
     public function testAppliesCustomCallbackHandler() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->addCallbackHandler(new StringCallbackHandler());
         $router->map("GET", "/path/?", "Test string");
         $context = $router->route(Provider::getContext());
@@ -211,7 +211,7 @@ class RouterTest extends TestCase {
     }
 
     public function testAppliesCustomCallbackHandlerInArray() {
-        $router = new \QuickRouter\Router();
+        $router = new \HTTPassage\Router();
         $router->addCallbackHandler(new StringCallbackHandler());
         $router->map("GET", "/path/?", [
             function($context) {

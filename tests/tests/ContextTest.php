@@ -10,7 +10,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $routeParameters = ["id" => 123];
         $matchedRoutes = ["match" => "POST-/"];
 
-        $context = new \QuickRouter\Context(
+        $context = new \HTTPassage\Context(
             $req,
             $res,
             $state,
@@ -18,7 +18,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
             $matchedRoutes
         );
 
-        $this->assertEquals($context instanceof \QuickRouter\Context, true);
+        $this->assertEquals($context instanceof \HTTPassage\Context, true);
         $this->assertEquals($context->getRequest()->getMethod(), "POST");
         $this->assertEquals($context->getResponse()->getBody()->__toString(), "test");
         $this->assertEquals($context->getState(), $state);
@@ -31,7 +31,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $request = $context->getRequest();
         $this->assertEmpty($request->getAttribute("test"));
         $result = $context->withRequest($request->withAttribute("test", "test"));
-        $this->assertEquals($result instanceof \QuickRouter\Context, true);
+        $this->assertEquals($result instanceof \HTTPassage\Context, true);
         $this->assertEquals($result->getRequest()->getAttribute("test"), "test");
     }
 
@@ -41,7 +41,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $this->assertEmpty($response->getBody()->__toString());
         $response->getBody()->write("test body");
         $result = $context->withResponse($response);
-        $this->assertEquals($result instanceof \QuickRouter\Context, true);
+        $this->assertEquals($result instanceof \HTTPassage\Context, true);
         $this->assertEquals($result->getResponse()->getBody()->__toString(), "test body");
     }
 
@@ -50,7 +50,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $state = $context->getState();
         $this->assertEmpty($state);
         $result = $context->withState("test state");
-        $this->assertEquals($result instanceof \QuickRouter\Context, true);
+        $this->assertEquals($result instanceof \HTTPassage\Context, true);
         $this->assertEquals($result->getState(), "test state");
     }
 
@@ -59,7 +59,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $routeParams = ["id" => 123, "action" => "test"];
         $this->assertEmpty($context->getRouteParameters());
         $result = $context->withRouteParameters($routeParams);
-        $this->assertEquals($result instanceof \QuickRouter\Context, true);
+        $this->assertEquals($result instanceof \HTTPassage\Context, true);
         $this->assertEquals($result->getRouteParameters(), $routeParams);
     }
 
@@ -78,7 +78,7 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $matchedRoutes = ["GET-/path", "GET-/path/path"];
         $this->assertEmpty($context->getMatchedRoutes());
         $result = $context->withMatchedRoutes($matchedRoutes);
-        $this->assertEquals($result instanceof \QuickRouter\Context, true);
+        $this->assertEquals($result instanceof \HTTPassage\Context, true);
         $this->assertEquals($result->getMatchedRoutes(), $matchedRoutes);
     }
 
@@ -86,10 +86,10 @@ class ContextTest extends \PHPUnit\Framework\TestCase {
         $context = Provider::getContext();
         $this->assertEquals($context->shouldExitRouting(), false);
         $context = $context->withExitFlag(true);
-        $this->assertEquals($context instanceof \QuickRouter\Context, true);
+        $this->assertEquals($context instanceof \HTTPassage\Context, true);
         $this->assertEquals($context->shouldExitRouting(), true);
         $context = $context->withExitFlag(false);
-        $this->assertEquals($context instanceof \QuickRouter\Context, true);
+        $this->assertEquals($context instanceof \HTTPassage\Context, true);
         $this->assertEquals($context->shouldExitRouting(), false);
     }
 }
