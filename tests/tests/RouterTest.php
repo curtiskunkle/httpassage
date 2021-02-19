@@ -34,13 +34,26 @@ class RouterTest extends TestCase {
 
     public function testRegistersMiddleware() {
         $router = new \QuickRouter\Router();
-        $router->useMiddleware(function($context) {});
-        $this->assertEquals(is_callable($router->middleware[0]), true);
+        $router->addMiddleware(function($context) {});
+        $this->assertEquals(is_callable($router->getMiddleware()[0]), true);
     }
 
     
     public function testAppliesRegisteredMiddleware() {
-        //@todo
+        $router = new \QuickRouter\Router();
+        $router->useMiddleware([
+            function ($context) {
+                return $context->withRequest($context->getRequest()->withAttribute("test", "test"));
+            },
+            function ($context) {
+                $response = $context->getResponse();
+                $response->getBody()->write("test test test");
+            },
+        ]);
+        
+        $context = $router->route(Provider::getContext());
+        $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
+        $this->assertEquals($context->getResponse()->getBody()->__toString(), "test test test");
     }
 
     public function testMatchesRoute() {
@@ -101,21 +114,43 @@ class RouterTest extends TestCase {
         $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
     }
 
-    //@todo more psr15 middleware tests
+    public function testAppliesPSR15Middleware2() {
+        $router = new \QuickRouter\Router();
+        $router->map("GET", "/path/?", new MiddlewareInterfaceExample2());
+        $context = Provider::getContext();
+        $context = $router->route($context);
+        $this->assertEquals($context->getResponse()->getHeader("x-some-header")[0], "value");
+        $this->assertEquals($context->getResponse()->getBody()->__toString(), "middleware applied");
+    }
+    
+    public function testRouterCallbackHandlerRoutesRequest() {
+        $subRouter = new \QuickRouter\Router();
+        $subRouter->map("GET", "/path/example/?", [
+            new MiddlewareInterfaceExample1(),
+            new MiddlewareInterfaceExample2(),
+        ]);
+
+        $router = new \QuickRouter\Router();
+        $router->map("GET", "/path.*", $subRouter);
+        $context = $router->route(Provider::getContext("GET", "http://example.io/path/example"));
+        $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
+        $this->assertEquals($context->getResponse()->getHeader("x-some-header")[0], "value");
+        $this->assertEquals($context->getResponse()->getBody()->__toString(), "middleware applied");
+    }
     
     public function testExitFlagAgainstMiddleware() {
         $router = new \QuickRouter\Router();
-        $router->useMiddleware(function($context) {
+        $router->addMiddleware(function($context) {
             return $context->withState("test");
         });
         $context = $router->route(Provider::getContext());
         $this->assertEquals($context->getState(), "test");
 
         $router = new \QuickRouter\Router();
-        $router->useMiddleware(function($context) {
+        $router->addMiddleware(function($context) {
             return $context->withExitFlag();
         });
-        $router->useMiddleware(function($context) {
+        $router->addMiddleware(function($context) {
             return $context->withState("test");
         });
 
@@ -146,10 +181,6 @@ class RouterTest extends TestCase {
         $this->assertEquals($context->getState(), null);
     }
 
-    public function testThrowsRuntimeExceptionIfCallbackDoesNotReturnContext() {
-        //@todo
-    }
-
     public function testUsesCallbackHandlers() {
         $router = new \QuickRouter\Router();
         $router->useCallbackHandlers([
@@ -167,8 +198,8 @@ class RouterTest extends TestCase {
         $router = new \QuickRouter\Router();
         $router->addCallbackHandler(new StringCallbackHandler());
         $handlers = $router->getCallbackHandlers();
-        $this->assertEquals(count($handlers), 4);
-        $this->assertEquals($handlers[3] instanceof StringCallbackHandler, true);
+        $this->assertEquals(count($handlers), 5);
+        $this->assertEquals($handlers[4] instanceof StringCallbackHandler, true);
     }
 
     public function testAppliesCustomCallbackHandler() {

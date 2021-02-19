@@ -16,15 +16,16 @@ class Router extends \AltoRouter{
 		$this->useCallbackHandlers([
 			new \QuickRouter\CallbackHandler\PSR15RequestHandlerCallbackHandler(),
 			new \QuickRouter\CallbackHandler\PSR15MiddlewareCallbackHandler(),
+			new \QuickRouter\CallbackHandler\RouterCallbackHandler(),
 			new \QuickRouter\CallbackHandler\CallableCallbackHandler(),
 		]);
 	}
 
 	/**
-	 * Array of callables to be applied to a request before a matched route callback
+	 * Array of ballbacks to be applied to a request before a matched route callback
 	 * @var array
 	 */
-	public $middleware = [];
+	protected $middleware = [];
 
 	/**
 	 * Array of callback handlers
@@ -62,12 +63,25 @@ class Router extends \AltoRouter{
 	public function options($route, $target) {$this->map("OPTIONS", $route, $target);}
 
 	/**
+	 * Set this middleware
+	 * @param  array  $middleware array of callbacks
+	 */
+	public function useMiddleware(array $middleware) {
+		$this->middleware = $middleware;
+		return $this;
+	}
+
+	/**
 	 * Register middleware
 	 * @param  callable $middleware 
 	 */
-	public function useMiddleware($middleware) {
+	public function addMiddleware($middleware) {
 		$this->middleware[] = $middleware;
 		return $this;
+	}
+
+	public function getMiddleware() {
+		return $this->middleware;
 	}
 
 	/**
@@ -80,6 +94,7 @@ class Router extends \AltoRouter{
 		foreach ($handlers as $handler) {
 			$this->addCallbackHandler($handler);
 		}
+		return $this;
 	}
 
 	/**
@@ -88,6 +103,7 @@ class Router extends \AltoRouter{
 	 */
 	public function addCallbackHandler(CallbackHandler $handler) {
 		$this->callbackHandlers[] = $handler;
+		return $this;
 	}
 
 	public function getCallbackHandlers() {
