@@ -86,7 +86,7 @@ class RouterTest extends TestCase {
         $this->assertEquals($context->getMatchedRoutes(), []);
     }
 
-    public function testAssignsNamedParamsToRequest() {
+    public function testAssignsNamedParamsToContext() {
         $router = Provider::getTestRouter();
         $context = $router->route(Provider::getContext("GET", "/path/test/1"));
         $this->assertEquals($context->getRouteParameters(), ["id" => "1"]);
@@ -100,7 +100,7 @@ class RouterTest extends TestCase {
 
     public function testAppliesPSR15RequestHandler() {
         $router = new \HTTPassage\Router();
-        $router->map("GET", "/path/?", new RequestHandlerInterfaceExample());
+        $router->map("GET", "/path[/]?", new RequestHandlerInterfaceExample());
         $context = Provider::getContext();
         $context = $router->route($context);
         $this->assertEquals($context->getResponse()->getBody()->__toString(), "Applied request handler");
@@ -108,7 +108,7 @@ class RouterTest extends TestCase {
 
     public function testAppliesPSR15Middleware1() {
         $router = new \HTTPassage\Router();
-        $router->map("GET", "/path/?", new MiddlewareInterfaceExample1());
+        $router->map("GET", "/path[/]?", new MiddlewareInterfaceExample1());
         $context = Provider::getContext();
         $context = $router->route($context);
         $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
@@ -116,7 +116,7 @@ class RouterTest extends TestCase {
 
     public function testAppliesPSR15Middleware2() {
         $router = new \HTTPassage\Router();
-        $router->map("GET", "/path/?", new MiddlewareInterfaceExample2());
+        $router->map("GET", "/path[/]?", new MiddlewareInterfaceExample2());
         $context = Provider::getContext();
         $context = $router->route($context);
         $this->assertEquals($context->getResponse()->getHeader("x-some-header")[0], "value");
@@ -125,13 +125,13 @@ class RouterTest extends TestCase {
     
     public function testRouterCallbackHandlerRoutesRequest() {
         $subRouter = new \HTTPassage\Router();
-        $subRouter->map("GET", "/path/example/?", [
+        $subRouter->map("GET", "/path/example[*]?", [
             new MiddlewareInterfaceExample1(),
             new MiddlewareInterfaceExample2(),
         ]);
 
         $router = new \HTTPassage\Router();
-        $router->map("GET", "/path.*", $subRouter);
+        $router->map("GET", "/path[*]?", $subRouter);
         $context = $router->route(Provider::getContext("GET", "http://example.io/path/example"));
         $this->assertEquals($context->getRequest()->getAttribute("test"), "test");
         $this->assertEquals($context->getResponse()->getHeader("x-some-header")[0], "value");
@@ -160,7 +160,7 @@ class RouterTest extends TestCase {
 
     public function testExitFlagAgainstCallbacks() {
         $router = new \HTTPassage\Router();
-        $router->map("GET", "/path/?", [
+        $router->map("GET", "/path[*]?", [
             function ($context) {
                 return $context->withState("test");
             }
@@ -205,7 +205,7 @@ class RouterTest extends TestCase {
     public function testAppliesCustomCallbackHandler() {
         $router = new \HTTPassage\Router();
         $router->addCallbackHandler(new StringCallbackHandler());
-        $router->map("GET", "/path/?", "Test string");
+        $router->map("GET", "/path[*]?", "Test string");
         $context = $router->route(Provider::getContext());
         $this->assertEquals($context->getResponse()->getBody()->__toString(), "Test string");
     }
@@ -213,7 +213,7 @@ class RouterTest extends TestCase {
     public function testAppliesCustomCallbackHandlerInArray() {
         $router = new \HTTPassage\Router();
         $router->addCallbackHandler(new StringCallbackHandler());
-        $router->map("GET", "/path/?", [
+        $router->map("GET", "/path[*]?", [
             function($context) {
                 return $context->withState("test");
             },

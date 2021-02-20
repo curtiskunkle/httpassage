@@ -31,7 +31,7 @@ class Provider {
             ["GET", "/path/test/[i:id]", 5],
             ["GET", "/path/test/[i:id]/test", 6],
             ["GET", "/path/test/[i:id]/test/[a:action]", 7],
-            ["GET", "/optional/trailing/slash/?", 15],
+            ["GET", "/optional/trailing/slash[*]?", 15],
         ];
 
         foreach ($routes as $route) {

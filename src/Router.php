@@ -34,13 +34,6 @@ class Router extends \AltoRouter{
 	protected $callbackHandlers = [];
 
 	/**
-	 * Add route getter since AltoRouter does not provide one
-	 */
-	public function getRoutes() {
-		return $this->routes;
-	}
-
-	/**
 	 * Override map method of AltoRouter so Router can automatically
 	 * name routes after the route string
 	 * 
