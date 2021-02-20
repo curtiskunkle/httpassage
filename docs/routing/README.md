@@ -1,34 +1,29 @@
-<h1>HTTPassage <span style="color:gray; font-size: .7em"> Routing</span></h1>
+<h1>HTTPassage <span style="color:gray; font-size: .7em"> Routing Requests</span></h1>
 
-The `HTTPassage\Router` class is an extension of [AltoRouter](https://github.com/dannyvankooten/AltoRouter), a light-weight, regex-based routing library with some nice features for route mapping and extracting named parameters from uris.
+After your router has some routes mapped to it, it can be used to route a context.  The `route` method of `\HTTPassage\Router` accepts and returns a context.  The logic for the `route` method is as follows:
 
-<h3>Creating Routes</h3>
+1. The method and path of the context's request are compared against each mapped route to determine if there is a match.  The routes are compared in the order that they were mapped, and the first match will be used if one is found.
+2. Any middleware registered to the router using `useMiddleware` or `addMiddleware` are applied to the context. 
+3. If not match is found, a 404 is set on the context response, and the context is returned.
+4. If a match is found, the corresponding callback will be applied to the context before it is returned.
 
-Creating routes means mapping one or more request methods and a path to a callback.  To create routes, you can use the `map` method, or you can use one of the 6 provided shorthand methods. The `map` method allows for mapping multiple request types by providing a pipe-delimited list.
+If any callback sets the exit flag to true on the context, the context will return before any other callbacks are applied.
+
 
 ```php
-<?php 
-/**
- * Request method examples
- */
+<?php
+
 $router = new \HTTPassage\Router();
 
-$myCallback = function($context) {
-    return $context->withState("This context was routed!");
-};
+//map some routes here
+//$router->map(...);
 
-//map a GET request using the map method
-$router->map("GET", "/a/path", $myCallback);
+//create a ServerRequest and Response using any PSR7 implementation
+$request = new \GuzzleHttp\Psr7\ServerRequest("GET", "http://examplehost/some/path");
+$response = new \GuzzleHttp\Psr7\Response();
 
-//map a GET or POST or PATCH request using the map method
-$router->map("GET|POST|PATCH", "/a/path", $myCallback);
+//create a request context
+$context = new \HTTPassage\Context($request, $response);
 
-//use one of the 6 shorthand methods
-$router->get("a/path", $myCallback);
-$router->post("a/path", $myCallback);
-$router->put("a/path", $myCallback);
-$router->delete("a/path", $myCallback);
-$router->patch("a/path", $myCallback);
-$router->options("a/path", $myCallback);
+$context = $router->route($context);
 ```
-
