@@ -1,4 +1,4 @@
-<h1>HTTPassage <span style="color:gray; font-size: .7em"> Context</span></h1>
+<h1>Context</h1>
 
 The `\HTTPassage\Context` class represents a request to a server and a corresponding response.  Specifically, these are represented by a PSR-7 ServerRequest and a PSR-7 Response.  The Context class is designed to be immutable and works similarly to PSR7 messages - instead of mutating its state, methods that change a context retain the orginal instance's state and return a new instance with the new state. 
 

@@ -1,4 +1,4 @@
-<h1>HTTPassage <span style="color:gray; font-size: .7em"> Routing Requests</span></h1>
+<h1>Routing Requests</span></h1>
 
 After your router has some routes mapped to it, it can be used to route a context.  The `route` method of `\HTTPassage\Router` accepts and returns a context.  The logic for the `route` method is as follows:
 

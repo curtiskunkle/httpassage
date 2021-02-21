@@ -1,4 +1,4 @@
-<h1>HTTPassage <span style="color:gray; font-size: .7em"> Route Mapping</span></h1>
+<h1>Mapping Routes</h1>
 
 The `HTTPassage\Router` class is an extension of [AltoRouter](https://github.com/dannyvankooten/AltoRouter), a light-weight, regex-based routing library with some nice features for route mapping and extracting named parameters from uris.
 
