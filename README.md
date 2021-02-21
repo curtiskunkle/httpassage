@@ -1,3 +1,3 @@
-# Quick Router #
+# HTTPassage #
 
-Routing library for PHP web applications.  This uses [AltoRouter](https://altorouter.com/) for request routing.
+A simple, flexible library for routing and processing PSR-7 HTTP messages.
