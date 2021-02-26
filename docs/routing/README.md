@@ -27,3 +27,19 @@ $context = new \HTTPassage\Context($request, $response);
 
 $context = $router->route($context);
 ```
+If route parameters are extracted from the matched route path, they will be added to context as route parameters.
+
+```php
+<?php
+
+$router = new \HTTPassage\Router();
+
+$router->get("/my/path/[i:id]", function($context) {
+
+    $id = $context->getRouteParameter("id");
+    
+    //or
+    
+    $id = $context->getRouteParameters()["id"];
+});
+```
