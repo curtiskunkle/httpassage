@@ -57,4 +57,43 @@ $router->get("/example/path", [
 
 <h3>Custom Callback Handlers</h3>
 
-todo
+It is also possible to create your own custom callback handlers.  Let's say for the sake of example that you would like to be able to map a string to a route and have the string written to the Context's response body.  The first step would be to create a class that implements `HTTPassage\CallbackHandler\CallbackHandlerInterface`
+
+```php
+<?php
+
+use HTTPassage\ContextInterface as Context;
+use HTTPassage\CallbackHandler\CallbackHandlerInterface as CallbackHandler;
+
+class StringCallbackHandler implements CallbackHandler {
+
+	public function meetsCriteria($callback): bool {
+		return is_string($callback);
+	}
+
+	public function handle(Context $context, $callback):Context {
+		$context->getResponse()->getBody()->write($callback);
+		return $context;
+	}
+	
+}
+```
+
+Then, add the callback handler to an instance of Router
+
+```php
+<?php
+
+$router = new \HTTPassage\Router();
+$router->addCallbackHandler(new StringCallbackHandler());
+```
+
+Finally, map a route with a string callback
+```php
+<?php
+
+//writes "A String Callback" to the Context response body
+$router->get("/example/path", "A String Callback");
+```
+
+Note: all callback handler `handle` functions should return an instance of `Context`
