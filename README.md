@@ -1,5 +1,6 @@
 # HTTPassage #
 
+![PHP](https://img.shields.io/packagist/php-v/ckunkle/httpassage)
 ![Tag](https://img.shields.io/github/v/tag/curtiskunkle/httpassage)
 ![License](https://img.shields.io/github/license/curtiskunkle/httpassage)
 
