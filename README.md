@@ -1,12 +1,14 @@
 # HTTPassage #
 
+![License](https://img.shields.io/github/license/curtiskunkle/httpassage)
+
 A simple, flexible library for routing and processing PSR-7 HTTP messages.
 
 ### Features ###
 - HTTP request routing built on top of [AltoRouter](https://github.com/dannyvankooten/AltoRouter)
-- Compatible with any PSR-7 implementation
+- Compatible with any [PSR-7](https://www.php-fig.org/psr/psr-7/) implementation
 - Customizable callback system for processing requests and responses
-- Compatible with PSR-15 middleware and request handlers out of the box
+- Compatible with [PSR-15](https://www.php-fig.org/psr/psr-15/) middleware and request handlers out of the box
 
 ### Installation
 ```shell
