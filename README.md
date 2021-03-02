@@ -1,5 +1,6 @@
 # HTTPassage #
 
+![Tag](https://img.shields.io/github/v/tag/curtiskunkle/httpassage)
 ![License](https://img.shields.io/github/license/curtiskunkle/httpassage)
 
 A simple, flexible library for routing and processing PSR-7 HTTP messages.
