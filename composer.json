@@ -2,6 +2,7 @@
     "name": "ckunkle/httpassage",
     "description": "A simple, flexible library for routing and processing PSR-7 messages",
     "type": "library",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "HTTPassage\\CallbackHandler\\": "./src/callbackhandlers",
@@ -22,5 +23,6 @@
     },
     "scripts": {
         "test": "\"vendor/bin/phpunit\" --testsuite \"all\""
-    }
+    },
+    "keywords": ["http", "route", "routing", "router", "psr", "psr7", "psr15", "psr-7", "psr-15"]
 }
